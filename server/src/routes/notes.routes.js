@@ -27,6 +27,17 @@ notesRouter.get("/:note_id", (req, res, next) => {
         success: false,
         error: err.message
       });
+    } else if (!result) {
+      res.status(404).send({
+        success: false,
+        error: "Note not found"
+      });
+    } else {
+      res.status(200).send({
+        success: true,
+        data: result,
+        message: "Note fetched successfully"
+      });
     }
   });
 });
