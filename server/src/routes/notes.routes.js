@@ -5,20 +5,20 @@ const notesRouter = express.Router();
 
 /* Get all Notes */
 notesRouter.get("/", (req, res, next) => {
-  Note.find().then((notes) => {
+  Note.find({}, (err, result) => {
+    if (err) {
+      return res.status(500).send({
+        success: false,
+        error: err.message
+      });
+    }
     res.status(200).send({
       success: true,
-      data: notes,
+      data: result,
       message: "Notes fetched successfully"
-    });
-  }).catch((err) => {
-    res.status(400).send({
-      success: false,
-      error: err.message
     });
   });
 });
-
 /* Get Single Note */
 notesRouter.get("/:note_id", (req, res, next) => {
   Note.findById(req.params.note_id, function (err, result) {

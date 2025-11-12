@@ -1,100 +1,305 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import logo from './logo.svg';
-// get notes from api
+
+const API_BASE = 'http://localhost:8080/api/notes';
+
 const getNotes = async () => {
   try {
-    const response = await fetch('http://localhost:8080/api/notes');
+    const response = await fetch(API_BASE);
     if (!response.ok) throw new Error('Network response was not ok');
     const data = await response.json();
-    console.log(data);
-    return data.data || data; // Handle server response format
+    return data.data || data;
   } catch (error) {
     console.error('Error fetching notes:', error);
     return [];
   }
 }
-const createNote = async () => {
+
+const createNote = async (noteData) => {
   try {
-    console.log('Creating note');
-    const response = await fetch('http://localhost:8080/api/notes', {
+    const response = await fetch(API_BASE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title: 'Test Note', body: 'This is a test note' }),
+      body: JSON.stringify(noteData),
     });
     if (!response.ok) throw new Error('Network response was not ok');
     const data = await response.json();
-    console.log(data);
     return data.data || data;
   } catch (error) {
     console.error('Error creating note:', error);
-    return [];
+    throw error;
   }
 }
-const deleteNote = async (noteId) => {
+
+const updateNote = async (noteId, noteData) => {
   try {
-    const response = await fetch(`http://localhost:8080/api/notes/${noteId}`, {
-      method: 'DELETE',
+    const response = await fetch(`${API_BASE}/${noteId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(noteData),
     });
     if (!response.ok) throw new Error('Network response was not ok');
     const data = await response.json();
-    console.log(data);
-    // After delete, fetch updated list
+    return data.data || data;
+  } catch (error) {
+    console.error('Error updating note:', error);
+    throw error;
+  }
+}
+
+const deleteNote = async (noteId) => {
+  try {
+    const response = await fetch(`${API_BASE}/${noteId}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Network response was not ok');
     return await getNotes();
   } catch (error) {
     console.error('Error deleting note:', error);
-    return [];
+    throw error;
   }
 }
+
 function App() {
   const [notes, setNotes] = useState([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+  const [formData, setFormData] = useState({ title: '', body: '', author: '' });
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    getNotes().then((data) => {
-      setNotes(data);
-    });
+    loadNotes();
   }, []);
+
+  const loadNotes = async () => {
+    setLoading(true);
+    const data = await getNotes();
+    setNotes(data);
+    setLoading(false);
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const newNote = await createNote(formData);
+      setNotes([...notes, newNote]);
+      setShowCreateModal(false);
+      setFormData({ title: '', body: '', author: '' });
+    } catch (error) {
+      alert('Failed to create note');
+    }
+    setLoading(false);
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const updatedNote = await updateNote(editingNote._id, formData);
+      setNotes(notes.map(note => note._id === editingNote._id ? updatedNote : note));
+      setEditingNote(null);
+      setFormData({ title: '', body: '', author: '' });
+    } catch (error) {
+      alert('Failed to update note');
+    }
+    setLoading(false);
+  };
+
+  const handleDelete = async (noteId) => {
+    if (!window.confirm('Are you sure you want to delete this note?')) return;
+    setLoading(true);
+    try {
+      const updatedNotes = await deleteNote(noteId);
+      setNotes(updatedNotes);
+    } catch (error) {
+      alert('Failed to delete note');
+    }
+    setLoading(false);
+  };
+
+  const openEditModal = (note) => {
+    setEditingNote(note);
+    setFormData({
+      title: note.title || '',
+      body: note.body || '',
+      author: note.author || ''
+    });
+  };
+
+  const closeModals = () => {
+    setShowCreateModal(false);
+    setEditingNote(null);
+    setFormData({ title: '', body: '', author: '' });
+  };
+
   return (
     <div className="App">
-      <button 
-        type="button"
-        onClick={() => {
-          console.log('Clicking me');
-          alert('Button clicked!');
-        }}
-      >Click me</button>
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reloadsss.
-        </p>
-        <p>{notes.map((note) => (
-          <div key={note._id}>
-            <h2>{note.title}</h2>
-            <p>{note.body}</p>
-            <button onClick={() => {
-              deleteNote(note._id).then((data) => {
-                setNotes(data);
-              });
-            }}>Delete Note</button>
+        <div className="container">
+          <h1 className="app-title">Notes App</h1>
+          
+          <div className="actions-bar">
+            <button 
+              className="btn btn-primary"
+              onClick={() => setShowCreateModal(true)}
+              disabled={loading}
+            >
+              + Create Note
+            </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={loadNotes}
+              disabled={loading}
+            >
+              ↻ Refresh
+            </button>
           </div>
-        ))}</p>
 
-        <button onClick={() => {
-          getNotes().then((data) => {
-            setNotes(data);
-          });
-        }}>Get Notes</button>
+          {loading && <div className="loading">Loading...</div>}
 
-        <button onClick={() => {
-          console.log('Creating note2');
-          createNote().then((data) => {
-            console.log('Creating note3', data);
-            setNotes((prev) => [...prev, data]);
-          });
-        }}>Create Note</button> 
-     
+          <div className="notes-grid">
+            {notes.length === 0 && !loading ? (
+              <div className="empty-state">
+                <p>No notes yet. Create your first note!</p>
+              </div>
+            ) : (
+              notes.map((note) => (
+                <div key={note._id} className="note-card">
+                  <div className="note-card-header">
+                    <h3 className="note-title">{note.title}</h3>
+                  </div>
+                  <div className="note-card-body">
+                    <p className="note-body">{note.body}</p>
+                    {note.author && (
+                      <p className="note-author">By: {note.author}</p>
+                    )}
+                  </div>
+                  <div className="note-card-actions">
+                    <button 
+                      className="btn btn-edit"
+                      onClick={() => openEditModal(note)}
+                      disabled={loading}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button 
+                      className="btn btn-delete"
+                      onClick={() => handleDelete(note._id)}
+                      disabled={loading}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {showCreateModal && (
+          <div className="modal-overlay" onClick={closeModals}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Create New Note</h2>
+                <button className="modal-close" onClick={closeModals}>×</button>
+              </div>
+              <form onSubmit={handleCreate} className="note-form">
+                <div className="form-group">
+                  <label>Title</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    required
+                    placeholder="Enter note title"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Body</label>
+                  <textarea
+                    value={formData.body}
+                    onChange={(e) => setFormData({...formData, body: e.target.value})}
+                    required
+                    placeholder="Enter note content"
+                    rows="5"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Author (optional)</label>
+                  <input
+                    type="text"
+                    value={formData.author}
+                    onChange={(e) => setFormData({...formData, author: e.target.value})}
+                    placeholder="Enter author name"
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="button" className="btn btn-secondary" onClick={closeModals}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={loading}>
+                    Create Note
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {editingNote && (
+          <div className="modal-overlay" onClick={closeModals}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>Edit Note</h2>
+                <button className="modal-close" onClick={closeModals}>×</button>
+              </div>
+              <form onSubmit={handleUpdate} className="note-form">
+                <div className="form-group">
+                  <label>Title</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    required
+                    placeholder="Enter note title"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Body</label>
+                  <textarea
+                    value={formData.body}
+                    onChange={(e) => setFormData({...formData, body: e.target.value})}
+                    required
+                    placeholder="Enter note content"
+                    rows="5"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Author (optional)</label>
+                  <input
+                    type="text"
+                    value={formData.author}
+                    onChange={(e) => setFormData({...formData, author: e.target.value})}
+                    placeholder="Enter author name"
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="button" className="btn btn-secondary" onClick={closeModals}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={loading}>
+                    Update Note
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </header>
     </div>
   );
