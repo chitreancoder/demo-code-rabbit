@@ -91,7 +91,7 @@ function App() {
           console.log('Creating note2');
           createNote().then((data) => {
             console.log('Creating note3', data);
-            setNotes([...notes, data]);
+            setNotes((prev) => [...prev, data]);
           });
         }}>Create Note</button> 
      
