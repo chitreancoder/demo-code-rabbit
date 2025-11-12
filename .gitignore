@@ -3,3 +3,8 @@ npm-debug.log
 client/src/compiled/
 # dist folder
 dist
+# Turborepo
+.turbo
+# Test coverage
+coverage
+*.lcov

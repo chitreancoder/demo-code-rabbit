@@ -47,6 +47,17 @@ services:
       - "3000:3000"
     networks:
       - app-network
+  test:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.test
+    image: myapp-server-test
+    container_name: myapp-server-test
+    volumes:
+      - ./server/:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - app-network
 
 networks:
     app-network:
