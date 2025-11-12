@@ -5,18 +5,8 @@ const notesRouter = express.Router();
 
 /* Get all Notes */
 notesRouter.get("/", (req, res, next) => {
-  Note.find().then((notes) => {
-    res.status(200).send({
-      success: true,
-      data: notes,
-      message: "Notes fetched successfully"
-    });
-  }).catch((err) => {
-    res.status(400).send({
-      success: false,
-      error: err.message
-    });
-  });
+  
+  res.send([]).status(200);
 });
 
 /* Get Single Note */
