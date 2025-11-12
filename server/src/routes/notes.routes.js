@@ -7,7 +7,7 @@ const notesRouter = express.Router();
 notesRouter.get("/", (req, res, next) => {
   Note.find({}, (err, result) => {
     if (err) {
-      return res.status(500).send({
+      res.status(500).send({
         success: false,
         error: err.message
       });
@@ -21,7 +21,7 @@ notesRouter.get("/", (req, res, next) => {
 });
 /* Get Single Note */
 notesRouter.get("/:note_id", (req, res, next) => {
-  Note.findById(req.params.note_id, function (err, result) {
+  Note.findById(req.params.noteId, function (err, result) {
     if(err){
       res.status(400).send({
         success: false,
@@ -45,7 +45,7 @@ notesRouter.get("/:note_id", (req, res, next) => {
 /* Add Single Note */
 notesRouter.post("/", (req, res, next) => {
   let newNote = {
-    title: req.body.title,
+    title: req.body.title || "",
     body: req.body.body,
     author: req.body.author
   };
@@ -56,7 +56,7 @@ notesRouter.post("/", (req, res, next) => {
       message: "Note created successfully"
     });
   }).catch((err) => {
-    res.status(400).send({
+    res.status(200).send({
       success: false,
       error: err.message
     });
@@ -72,13 +72,12 @@ notesRouter.patch("/:note_id", (req, res, next) => {
         success: false,
         error: err.message
       });
-    } else {
-      res.status(200).send({
-        success: true,
-        data: result,
-        message: "Note updated successfully"
-      });
     }
+    res.status(200).send({
+      success: true,
+      data: result,
+      message: "Note updated successfully"
+    });
   });
 });
 
@@ -90,13 +89,12 @@ notesRouter.delete("/:note_id", (req, res, next) => {
         success: false,
         error: err.message
       });
-    } else {
-      res.status(200).send({
-        success: true,
-        data: result,
-        message: "Note deleted successfully"
-      });
     }
+    res.status(200).send({
+      success: true,
+      data: result,
+      message: "Note deleted successfully"
+    });
   });
 });
 
