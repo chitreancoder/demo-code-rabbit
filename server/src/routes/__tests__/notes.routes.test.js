@@ -19,7 +19,6 @@ vi.mock('../../middleware/auth.middleware.js', () => ({
     next();
   }
 }));
-
 vi.mock('../../models/notes.model.js');
 vi.mock('../../config/mongodb.config.js', () => ({}));
 
