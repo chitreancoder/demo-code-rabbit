@@ -1,5 +1,5 @@
 import express from 'express';
-import Note from '../models/notes.model';
+import Note from '../models/notes.model.js';
 const notesRouter = express.Router();
 //const Post = require('../models/post.model');
 
@@ -7,7 +7,7 @@ const notesRouter = express.Router();
 notesRouter.get("/", (req, res, next) => {
   Note.find({}, (err, result) => {
     if (err) {
-      res.status(500).send({
+      return res.status(500).send({
         success: false,
         error: err.message
       });
@@ -21,7 +21,7 @@ notesRouter.get("/", (req, res, next) => {
 });
 /* Get Single Note */
 notesRouter.get("/:note_id", (req, res, next) => {
-  Note.findById(req.params.noteId, function (err, result) {
+  Note.findById(req.params.note_id, function (err, result) {
     if(err){
       res.status(400).send({
         success: false,
@@ -56,7 +56,7 @@ notesRouter.post("/", (req, res, next) => {
       message: "Note created successfully"
     });
   }).catch((err) => {
-    res.status(200).send({
+    res.status(400).send({
       success: false,
       error: err.message
     });
@@ -68,7 +68,7 @@ notesRouter.patch("/:note_id", (req, res, next) => {
   let fieldsToUpdate = req.body;
   Note.findByIdAndUpdate(req.params.note_id,{ $set: fieldsToUpdate }, { new: true },  function (err, result) {
     if(err){
-      res.status(400).send({
+      return res.status(400).send({
         success: false,
         error: err.message
       });
@@ -85,7 +85,7 @@ notesRouter.patch("/:note_id", (req, res, next) => {
 notesRouter.delete("/:note_id", (req, res, next) => {
   Note.findByIdAndDelete(req.params.note_id, function(err, result){
     if(err){
-      res.status(400).send({
+      return res.status(400).send({
         success: false,
         error: err.message
       });

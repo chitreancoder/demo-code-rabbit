@@ -1,10 +1,10 @@
 // server.js
 import bodyParser from 'body-parser';
 import express from 'express';
-import router from '././routes';
-import postRouter from '././routes/post.routes';
-import notesRouter from '././routes/notes.routes';
-import './config/mongodb.config';
+import router from './routes/index.js';
+import postRouter from './routes/post.routes.js';
+import notesRouter from './routes/notes.routes.js';
+import './config/mongodb.config.js';
 import cors from 'cors';
 const app = express();
 const PORT = 8080;

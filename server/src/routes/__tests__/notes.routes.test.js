@@ -1,11 +1,12 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import bodyParser from 'body-parser';
-import notesRouter from '../notes.routes';
-import Note from '../../models/notes.model';
+import notesRouter from '../notes.routes.js';
+import Note from '../../models/notes.model.js';
 
-jest.mock('../../models/notes.model');
-jest.mock('../../config/mongodb.config', () => ({}));
+vi.mock('../../models/notes.model.js');
+vi.mock('../../config/mongodb.config.js', () => ({}));
 
 const app = express();
 app.use(bodyParser.json());
@@ -13,7 +14,7 @@ app.use('/api/notes', notesRouter);
 
 describe('Notes Routes', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('GET /api/notes', () => {
@@ -23,7 +24,7 @@ describe('Notes Routes', () => {
         { _id: '2', title: 'Note 2', body: 'Body 2', author: 'Author 2' }
       ];
 
-      Note.find = jest.fn((query, callback) => {
+      Note.find = vi.fn((query, callback) => {
         callback(null, mockNotes);
       });
 
@@ -40,7 +41,7 @@ describe('Notes Routes', () => {
     it('should handle error when fetching notes', async () => {
       const mockError = new Error('Database error');
 
-      Note.find = jest.fn((query, callback) => {
+      Note.find = vi.fn((query, callback) => {
         callback(mockError, null);
       });
 
@@ -57,7 +58,7 @@ describe('Notes Routes', () => {
     it('should fetch a single note successfully', async () => {
       const mockNote = { _id: '1', title: 'Note 1', body: 'Body 1', author: 'Author 1' };
 
-      Note.findById = jest.fn((id, callback) => {
+      Note.findById = vi.fn((id, callback) => {
         callback(null, mockNote);
       });
 
@@ -72,7 +73,7 @@ describe('Notes Routes', () => {
     });
 
     it('should return 404 when note not found', async () => {
-      Note.findById = jest.fn((id, callback) => {
+      Note.findById = vi.fn((id, callback) => {
         callback(null, null);
       });
 
@@ -87,7 +88,7 @@ describe('Notes Routes', () => {
     it('should handle error when fetching note', async () => {
       const mockError = new Error('Invalid ID');
 
-      Note.findById = jest.fn((id, callback) => {
+      Note.findById = vi.fn((id, callback) => {
         callback(mockError, null);
       });
 
@@ -113,7 +114,7 @@ describe('Notes Routes', () => {
         ...newNoteData
       };
 
-      Note.create = jest.fn().mockResolvedValue(mockCreatedNote);
+      Note.create = vi.fn().mockResolvedValue(mockCreatedNote);
 
       const response = await request(app)
         .post('/api/notes')
@@ -135,7 +136,7 @@ describe('Notes Routes', () => {
 
       const mockError = new Error('Validation error');
 
-      Note.create = jest.fn().mockRejectedValue(mockError);
+      Note.create = vi.fn().mockRejectedValue(mockError);
 
       const response = await request(app)
         .post('/api/notes')
@@ -157,7 +158,7 @@ describe('Notes Routes', () => {
         author: 'Author 1'
       };
 
-      Note.findByIdAndUpdate = jest.fn((id, update, options, callback) => {
+      Note.findByIdAndUpdate = vi.fn((id, update, options, callback) => {
         callback(null, mockUpdatedNote);
       });
 
@@ -181,7 +182,7 @@ describe('Notes Routes', () => {
       const updateData = { title: 'Updated Title' };
       const mockError = new Error('Update failed');
 
-      Note.findByIdAndUpdate = jest.fn((id, update, options, callback) => {
+      Note.findByIdAndUpdate = vi.fn((id, update, options, callback) => {
         callback(mockError, null);
       });
 
@@ -204,7 +205,7 @@ describe('Notes Routes', () => {
         author: 'Author 1'
       };
 
-      Note.findByIdAndDelete = jest.fn((id, callback) => {
+      Note.findByIdAndDelete = vi.fn((id, callback) => {
         callback(null, mockDeletedNote);
       });
 
@@ -221,7 +222,7 @@ describe('Notes Routes', () => {
     it('should handle error when deleting note', async () => {
       const mockError = new Error('Delete failed');
 
-      Note.findByIdAndDelete = jest.fn((id, callback) => {
+      Note.findByIdAndDelete = vi.fn((id, callback) => {
         callback(mockError, null);
       });
 
