@@ -1,79 +1,115 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import Login from './components/Login';
+import Register from './components/Register';
+import authService from './services/auth.service';
 
 const API_BASE = 'http://localhost:8080/api/notes';
 
-const getNotes = async () => {
-  try {
-    const response = await fetch(API_BASE);
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
-    return data.data || data;
-  } catch (error) {
-    console.error('Error fetching notes:', error);
-    return [];
-  }
-}
-
-const createNote = async (noteData) => {
-  try {
-    const response = await fetch(API_BASE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(noteData),
-    });
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
-    return data.data || data;
-  } catch (error) {
-    console.error('Error creating note:', error);
-    throw error;
-  }
-}
-
-const updateNote = async (noteId, noteData) => {
-  try {
-    const response = await fetch(`${API_BASE}/${noteId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(noteData),
-    });
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
-    return data.data || data;
-  } catch (error) {
-    console.error('Error updating note:', error);
-    throw error;
-  }
-}
-
-const deleteNote = async (noteId) => {
-  try {
-    const response = await fetch(`${API_BASE}/${noteId}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Network response was not ok');
-    return await getNotes();
-  } catch (error) {
-    console.error('Error deleting note:', error);
-    throw error;
-  }
-}
-
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showRegister, setShowRegister] = useState(false);
   const [notes, setNotes] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [formData, setFormData] = useState({ title: '', body: '', author: '' });
   const [loading, setLoading] = useState(false);
 
+  // Check authentication on mount
   useEffect(() => {
-    loadNotes();
+    const token = authService.getToken();
+    const storedUser = authService.getUser();
+    
+    if (token && storedUser) {
+      setIsAuthenticated(true);
+      setUser(storedUser);
+    }
   }, []);
+
+  // Load notes when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadNotes();
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (userData, token) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+  };
+
+  const handleRegister = (userData, token) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setUser(null);
+    setIsAuthenticated(false);
+    setNotes([]);
+  };
+
+  const getNotes = async () => {
+    try {
+      const response = await fetch(API_BASE, {
+        headers: authService.getAuthHeaders()
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data.data || data;
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+      return [];
+    }
+  };
+
+  const createNote = async (noteData) => {
+    try {
+      const response = await fetch(API_BASE, {
+        method: 'POST',
+        headers: authService.getAuthHeaders(),
+        body: JSON.stringify(noteData),
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data.data || data;
+    } catch (error) {
+      console.error('Error creating note:', error);
+      throw error;
+    }
+  };
+
+  const updateNote = async (noteId, noteData) => {
+    try {
+      const response = await fetch(`${API_BASE}/${noteId}`, {
+        method: 'PATCH',
+        headers: authService.getAuthHeaders(),
+        body: JSON.stringify(noteData),
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data.data || data;
+    } catch (error) {
+      console.error('Error updating note:', error);
+      throw error;
+    }
+  };
+
+  const deleteNote = async (noteId) => {
+    try {
+      const response = await fetch(`${API_BASE}/${noteId}`, {
+        method: 'DELETE',
+        headers: authService.getAuthHeaders()
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await getNotes();
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      throw error;
+    }
+  };
 
   const loadNotes = async () => {
     setLoading(true);
@@ -137,11 +173,38 @@ function App() {
     setFormData({ title: '', body: '', author: '' });
   };
 
+  // If not authenticated, show login/register
+  if (!isAuthenticated) {
+    return showRegister ? (
+      <Register 
+        onRegister={handleRegister}
+        onSwitchToLogin={() => setShowRegister(false)}
+      />
+    ) : (
+      <Login 
+        onLogin={handleLogin}
+        onSwitchToRegister={() => setShowRegister(true)}
+      />
+    );
+  }
+
+  // Authenticated - show notes app
   return (
     <div className="App">
       <header className="App-header">
         <div className="container">
-          <h1 className="app-title">Notes App</h1>
+          <div className="app-header-bar">
+            <h1 className="app-title">Notes App</h1>
+            <div className="user-info">
+              <span className="welcome-text">Welcome, {user?.username}!</span>
+              <button 
+                className="btn btn-logout"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          </div>
           
           <div className="actions-bar">
             <button 
