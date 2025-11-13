@@ -2,7 +2,6 @@ import express from 'express';
 import Note from '../models/notes.model.js';
 import authenticateToken from '../middleware/auth.middleware.js';
 const notesRouter = express.Router();
-//const Post = require('../models/post.model');
 
 /* Get all Notes */
 notesRouter.get("/", authenticateToken, async (req, res, next) => {
@@ -36,7 +35,7 @@ notesRouter.get("/:note_id", authenticateToken, async (req, res, next) => {
       message: "Note fetched successfully"
     });
   } catch (err) {
-    res.status(400).send({
+    res.status(500).send({
       success: false,
       error: err.message
     });

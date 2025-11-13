@@ -98,7 +98,7 @@ describe('Notes Routes', () => {
 
       const response = await request(app)
         .get('/api/notes/invalid')
-        .expect(400);
+        .expect(500);
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Invalid ID');
