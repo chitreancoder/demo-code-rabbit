@@ -5,6 +5,20 @@ import bodyParser from 'body-parser';
 import notesRouter from '../notes.routes.js';
 import Note from '../../models/notes.model.js';
 
+// Mock user for authentication
+const mockUser = {
+  _id: 'user123',
+  username: 'testuser',
+  email: 'test@example.com'
+};
+
+// Mock auth middleware to inject test user
+vi.mock('../../middleware/auth.middleware.js', () => ({
+  default: (req, res, next) => {
+    req.user = mockUser;
+    next();
+  }
+}));
 vi.mock('../../models/notes.model.js');
 vi.mock('../../config/mongodb.config.js', () => ({}));
 
@@ -20,13 +34,11 @@ describe('Notes Routes', () => {
   describe('GET /api/notes', () => {
     it('should fetch all notes successfully', async () => {
       const mockNotes = [
-        { _id: '1', title: 'Note 1', body: 'Body 1', author: 'Author 1' },
-        { _id: '2', title: 'Note 2', body: 'Body 2', author: 'Author 2' }
+        { _id: '1', title: 'Note 1', body: 'Body 1', author: 'testuser', userId: 'user123' },
+        { _id: '2', title: 'Note 2', body: 'Body 2', author: 'testuser', userId: 'user123' }
       ];
 
-      Note.find = vi.fn((query, callback) => {
-        callback(null, mockNotes);
-      });
+      Note.find = vi.fn().mockResolvedValue(mockNotes);
 
       const response = await request(app)
         .get('/api/notes')
@@ -35,15 +47,13 @@ describe('Notes Routes', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual(mockNotes);
       expect(response.body.message).toBe('Notes fetched successfully');
-      expect(Note.find).toHaveBeenCalledWith({}, expect.any(Function));
+      expect(Note.find).toHaveBeenCalledWith({ userId: mockUser._id });
     });
 
     it('should handle error when fetching notes', async () => {
       const mockError = new Error('Database error');
 
-      Note.find = vi.fn((query, callback) => {
-        callback(mockError, null);
-      });
+      Note.find = vi.fn().mockRejectedValue(mockError);
 
       const response = await request(app)
         .get('/api/notes')
@@ -56,11 +66,9 @@ describe('Notes Routes', () => {
 
   describe('GET /api/notes/:note_id', () => {
     it('should fetch a single note successfully', async () => {
-      const mockNote = { _id: '1', title: 'Note 1', body: 'Body 1', author: 'Author 1' };
+      const mockNote = { _id: '1', title: 'Note 1', body: 'Body 1', author: 'testuser', userId: 'user123' };
 
-      Note.findById = vi.fn((id, callback) => {
-        callback(null, mockNote);
-      });
+      Note.findOne = vi.fn().mockResolvedValue(mockNote);
 
       const response = await request(app)
         .get('/api/notes/1')
@@ -69,13 +77,11 @@ describe('Notes Routes', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual(mockNote);
       expect(response.body.message).toBe('Note fetched successfully');
-      expect(Note.findById).toHaveBeenCalledWith('1', expect.any(Function));
+      expect(Note.findOne).toHaveBeenCalledWith({ _id: '1', userId: mockUser._id });
     });
 
     it('should return 404 when note not found', async () => {
-      Note.findById = vi.fn((id, callback) => {
-        callback(null, null);
-      });
+      Note.findOne = vi.fn().mockResolvedValue(null);
 
       const response = await request(app)
         .get('/api/notes/999')
@@ -88,9 +94,7 @@ describe('Notes Routes', () => {
     it('should handle error when fetching note', async () => {
       const mockError = new Error('Invalid ID');
 
-      Note.findById = vi.fn((id, callback) => {
-        callback(mockError, null);
-      });
+      Note.findOne = vi.fn().mockRejectedValue(mockError);
 
       const response = await request(app)
         .get('/api/notes/invalid')
@@ -105,13 +109,19 @@ describe('Notes Routes', () => {
     it('should create a new note successfully', async () => {
       const newNoteData = {
         title: 'New Note',
+        body: 'Note body'
+      };
+
+      const expectedNoteData = {
+        title: 'New Note',
         body: 'Note body',
-        author: 'Test Author'
+        author: mockUser.username,
+        userId: mockUser._id
       };
 
       const mockCreatedNote = {
         _id: '123',
-        ...newNoteData
+        ...expectedNoteData
       };
 
       Note.create = vi.fn().mockResolvedValue(mockCreatedNote);
@@ -124,14 +134,13 @@ describe('Notes Routes', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual(mockCreatedNote);
       expect(response.body.message).toBe('Note created successfully');
-      expect(Note.create).toHaveBeenCalledWith(newNoteData);
+      expect(Note.create).toHaveBeenCalledWith(expectedNoteData);
     });
 
     it('should handle error when creating note', async () => {
       const newNoteData = {
         title: 'New Note',
-        body: 'Note body',
-        author: 'Test Author'
+        body: 'Note body'
       };
 
       const mockError = new Error('Validation error');
@@ -151,16 +160,23 @@ describe('Notes Routes', () => {
   describe('PATCH /api/notes/:note_id', () => {
     it('should update a note successfully', async () => {
       const updateData = { title: 'Updated Title' };
+      const existingNote = {
+        _id: '1',
+        title: 'Old Title',
+        body: 'Body 1',
+        author: 'testuser',
+        userId: 'user123'
+      };
       const mockUpdatedNote = {
         _id: '1',
         title: 'Updated Title',
         body: 'Body 1',
-        author: 'Author 1'
+        author: 'testuser',
+        userId: 'user123'
       };
 
-      Note.findByIdAndUpdate = vi.fn((id, update, options, callback) => {
-        callback(null, mockUpdatedNote);
-      });
+      Note.findOne = vi.fn().mockResolvedValue(existingNote);
+      Note.findByIdAndUpdate = vi.fn().mockResolvedValue(mockUpdatedNote);
 
       const response = await request(app)
         .patch('/api/notes/1')
@@ -170,21 +186,41 @@ describe('Notes Routes', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual(mockUpdatedNote);
       expect(response.body.message).toBe('Note updated successfully');
+      expect(Note.findOne).toHaveBeenCalledWith({ _id: '1', userId: mockUser._id });
       expect(Note.findByIdAndUpdate).toHaveBeenCalledWith(
         '1',
         { $set: updateData },
-        { new: true },
-        expect.any(Function)
+        { new: true }
       );
+    });
+
+    it('should return 404 when note not found or not owned by user', async () => {
+      const updateData = { title: 'Updated Title' };
+
+      Note.findOne = vi.fn().mockResolvedValue(null);
+
+      const response = await request(app)
+        .patch('/api/notes/999')
+        .send(updateData)
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe("Note not found or you don't have permission to edit it");
     });
 
     it('should handle error when updating note', async () => {
       const updateData = { title: 'Updated Title' };
+      const existingNote = {
+        _id: '1',
+        title: 'Old Title',
+        body: 'Body 1',
+        author: 'testuser',
+        userId: 'user123'
+      };
       const mockError = new Error('Update failed');
 
-      Note.findByIdAndUpdate = vi.fn((id, update, options, callback) => {
-        callback(mockError, null);
-      });
+      Note.findOne = vi.fn().mockResolvedValue(existingNote);
+      Note.findByIdAndUpdate = vi.fn().mockRejectedValue(mockError);
 
       const response = await request(app)
         .patch('/api/notes/1')
@@ -198,33 +234,51 @@ describe('Notes Routes', () => {
 
   describe('DELETE /api/notes/:note_id', () => {
     it('should delete a note successfully', async () => {
-      const mockDeletedNote = {
+      const mockNote = {
         _id: '1',
         title: 'Note 1',
         body: 'Body 1',
-        author: 'Author 1'
+        author: 'testuser',
+        userId: 'user123'
       };
 
-      Note.findByIdAndDelete = vi.fn((id, callback) => {
-        callback(null, mockDeletedNote);
-      });
+      Note.findOne = vi.fn().mockResolvedValue(mockNote);
+      Note.findByIdAndDelete = vi.fn().mockResolvedValue(mockNote);
 
       const response = await request(app)
         .delete('/api/notes/1')
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toEqual(mockDeletedNote);
+      expect(response.body.data).toEqual(mockNote);
       expect(response.body.message).toBe('Note deleted successfully');
-      expect(Note.findByIdAndDelete).toHaveBeenCalledWith('1', expect.any(Function));
+      expect(Note.findOne).toHaveBeenCalledWith({ _id: '1', userId: mockUser._id });
+      expect(Note.findByIdAndDelete).toHaveBeenCalledWith('1');
+    });
+
+    it('should return 404 when note not found or not owned by user', async () => {
+      Note.findOne = vi.fn().mockResolvedValue(null);
+
+      const response = await request(app)
+        .delete('/api/notes/999')
+        .expect(404);
+
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe("Note not found or you don't have permission to delete it");
     });
 
     it('should handle error when deleting note', async () => {
+      const mockNote = {
+        _id: '1',
+        title: 'Note 1',
+        body: 'Body 1',
+        author: 'testuser',
+        userId: 'user123'
+      };
       const mockError = new Error('Delete failed');
 
-      Note.findByIdAndDelete = vi.fn((id, callback) => {
-        callback(mockError, null);
-      });
+      Note.findOne = vi.fn().mockResolvedValue(mockNote);
+      Note.findByIdAndDelete = vi.fn().mockRejectedValue(mockError);
 
       const response = await request(app)
         .delete('/api/notes/1')

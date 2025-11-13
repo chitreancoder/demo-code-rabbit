@@ -13,7 +13,7 @@ function App() {
   const [notes, setNotes] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
-  const [formData, setFormData] = useState({ title: '', body: '', author: '' });
+  const [formData, setFormData] = useState({ title: '', body: '' });
   const [loading, setLoading] = useState(false);
 
   // Check authentication on mount
@@ -125,7 +125,7 @@ function App() {
       const newNote = await createNote(formData);
       setNotes([...notes, newNote]);
       setShowCreateModal(false);
-      setFormData({ title: '', body: '', author: '' });
+      setFormData({ title: '', body: '' });
     } catch (error) {
       alert('Failed to create note');
     }
@@ -139,7 +139,7 @@ function App() {
       const updatedNote = await updateNote(editingNote._id, formData);
       setNotes(notes.map(note => note._id === editingNote._id ? updatedNote : note));
       setEditingNote(null);
-      setFormData({ title: '', body: '', author: '' });
+      setFormData({ title: '', body: '' });
     } catch (error) {
       alert('Failed to update note');
     }
@@ -162,15 +162,14 @@ function App() {
     setEditingNote(note);
     setFormData({
       title: note.title || '',
-      body: note.body || '',
-      author: note.author || ''
+      body: note.body || ''
     });
   };
 
   const closeModals = () => {
     setShowCreateModal(false);
     setEditingNote(null);
-    setFormData({ title: '', body: '', author: '' });
+    setFormData({ title: '', body: '' });
   };
 
   // If not authenticated, show login/register
@@ -292,15 +291,6 @@ function App() {
                     rows="5"
                   />
                 </div>
-                <div className="form-group">
-                  <label>Author (optional)</label>
-                  <input
-                    type="text"
-                    value={formData.author}
-                    onChange={(e) => setFormData({...formData, author: e.target.value})}
-                    placeholder="Enter author name"
-                  />
-                </div>
                 <div className="form-actions">
                   <button type="button" className="btn btn-secondary" onClick={closeModals}>
                     Cancel
@@ -340,15 +330,6 @@ function App() {
                     required
                     placeholder="Enter note content"
                     rows="5"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Author (optional)</label>
-                  <input
-                    type="text"
-                    value={formData.author}
-                    onChange={(e) => setFormData({...formData, author: e.target.value})}
-                    placeholder="Enter author name"
                   />
                 </div>
                 <div className="form-actions">

@@ -10,6 +10,11 @@ const noteSchema = new mongoose.Schema({
    },
    author: {
        type: String
+   },
+   userId: {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: 'User',
+       required: true
    }
 });
 

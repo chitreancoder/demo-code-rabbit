@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use('/api', router);
 app.use('/api/auth', authRouter);
 app.use('/api/posts', postRouter);
-app.use('/api/note', notesRouter);
+app.use('/api/notes', notesRouter);
 app.get('/', function(req, res){
   res.send('Hello ! from the Server ');
 });
