@@ -58,8 +58,7 @@ const CommentList = ({ noteId }) => {
         // Reset to first page and latest sort to see the new comment
         setSortOrder('latest');
         setPage(1);
-        // Refresh comments
-        fetchComments();
+        // The useEffect will automatically trigger fetchComments when sortOrder/page change
       } else {
         setError(result.error || 'Failed to add comment');
       }

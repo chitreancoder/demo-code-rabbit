@@ -49,9 +49,10 @@ commentsRouter.post("/notes/:noteId/comments", authenticateToken, async (req, re
       message: "Comment added successfully"
     });
   } catch (err) {
-    res.status(400).send({
+    console.error('Error creating comment:', err);
+    res.status(500).send({
       success: false,
-      error: err.message
+      error: 'Failed to create comment'
     });
   }
 });
@@ -84,7 +85,7 @@ commentsRouter.get("/notes/:noteId/comments", authenticateToken, async (req, res
       .sort({ createdAt: sortOrder })
       .skip(skip)
       .limit(limitNum)
-      .populate('userId', 'username email');
+      .populate('userId', 'username');
 
     // Get total count for pagination metadata
     const total = await Comment.countDocuments({ noteId: noteId });
@@ -101,9 +102,10 @@ commentsRouter.get("/notes/:noteId/comments", authenticateToken, async (req, res
       message: "Comments fetched successfully"
     });
   } catch (err) {
-    res.status(400).send({
+    console.error('Error fetching comments:', err);
+    res.status(500).send({
       success: false,
-      error: err.message
+      error: 'Failed to fetch comments'
     });
   }
 });
