@@ -49,8 +49,8 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="">
+      <div className="">
         <h2 className="auth-title">Login to Notes App</h2>
         
         {error && <div className="error-message">{error}</div>}
