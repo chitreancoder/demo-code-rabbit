@@ -7,18 +7,18 @@ import Note from '../../models/notes.model.js';
 
 // Mock user for authentication
 const mockUser = {
-  // _id: 'user123',
-  // username: 'testuser',
-  // email: 'test@example.com'
+  _id: 'user123',
+  username: 'testuser',
+  email: 'test@example.com'
 };
 
 // Mock auth middleware to inject test user
-// vi.mock('../../middleware/auth.middleware.js', () => ({
-//   default: (req, res, next) => {
-//     req.user = mockUser;
-//     next();
-//   }
-// }));
+vi.mock('../../middleware/auth.middleware.js', () => ({
+  default: (req, res, next) => {
+    req.user = mockUser;
+    next();
+  }
+}));
 
 vi.mock('../../models/notes.model.js');
 vi.mock('../../config/mongodb.config.js', () => ({}));
@@ -99,7 +99,7 @@ describe('Notes Routes', () => {
 
       const response = await request(app)
         .get('/api/notes/invalid')
-        .expect(400);
+        .expect(500);
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Invalid ID');

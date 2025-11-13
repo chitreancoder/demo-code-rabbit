@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Login from './components/Login';
 import Register from './components/Register';
+import CommentList from './components/CommentList';
 import authService from './services/auth.service';
 
 const API_BASE = 'http://localhost:8080/api/notes';
@@ -13,6 +14,7 @@ function App() {
   const [notes, setNotes] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  const [viewingNote, setViewingNote] = useState(null);
   const [formData, setFormData] = useState({ title: '', body: '' });
   const [loading, setLoading] = useState(false);
 
@@ -169,6 +171,7 @@ function App() {
   const closeModals = () => {
     setShowCreateModal(false);
     setEditingNote(null);
+    setViewingNote(null);
     setFormData({ title: '', body: '' });
   };
 
@@ -242,14 +245,21 @@ function App() {
                     )}
                   </div>
                   <div className="note-card-actions">
-                    <button 
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => setViewingNote(note)}
+                      disabled={loading}
+                    >
+                      💬 View
+                    </button>
+                    <button
                       className="btn btn-edit"
                       onClick={() => openEditModal(note)}
                       disabled={loading}
                     >
                       ✏️ Edit
                     </button>
-                    <button 
+                    <button
                       className="btn btn-delete"
                       onClick={() => handleDelete(note._id)}
                       disabled={loading}
@@ -341,6 +351,26 @@ function App() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {viewingNote && (
+          <div className="modal-overlay" onClick={closeModals}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '800px' }}>
+              <div className="modal-header">
+                <h2>{viewingNote.title}</h2>
+                <button className="modal-close" onClick={closeModals}>×</button>
+              </div>
+              <div className="note-form">
+                <div className="note-card-body">
+                  <p className="note-body">{viewingNote.body}</p>
+                  {viewingNote.author && (
+                    <p className="note-author">By: {viewingNote.author}</p>
+                  )}
+                </div>
+                <CommentList noteId={viewingNote._id} />
+              </div>
             </div>
           </div>
         )}
