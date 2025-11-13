@@ -1,5 +1,5 @@
 import express from 'express';
-import Note from '../models/notes.model';
+import Note from '../models/notes.model.js';
 const notesRouter = express.Router();
 //const Post = require('../models/post.model');
 
@@ -45,7 +45,7 @@ notesRouter.get("/:note_id", (req, res, next) => {
 /* Add Single Note */
 notesRouter.post("/", (req, res, next) => {
   let newNote = {
-    title: req.body.title,
+    title: req.body.title || "",
     body: req.body.body,
     author: req.body.author
   };
@@ -68,17 +68,16 @@ notesRouter.patch("/:note_id", (req, res, next) => {
   let fieldsToUpdate = req.body;
   Note.findByIdAndUpdate(req.params.note_id,{ $set: fieldsToUpdate }, { new: true },  function (err, result) {
     if(err){
-      res.status(400).send({
+      return res.status(400).send({
         success: false,
         error: err.message
       });
-    } else {
-      res.status(200).send({
-        success: true,
-        data: result,
-        message: "Note updated successfully"
-      });
     }
+    res.status(200).send({
+      success: true,
+      data: result,
+      message: "Note updated successfully"
+    });
   });
 });
 
@@ -86,17 +85,16 @@ notesRouter.patch("/:note_id", (req, res, next) => {
 notesRouter.delete("/:note_id", (req, res, next) => {
   Note.findByIdAndDelete(req.params.note_id, function(err, result){
     if(err){
-      res.status(400).send({
+      return res.status(400).send({
         success: false,
         error: err.message
       });
-    } else {
-      res.status(200).send({
-        success: true,
-        data: result,
-        message: "Note deleted successfully"
-      });
     }
+    res.status(200).send({
+      success: true,
+      data: result,
+      message: "Note deleted successfully"
+    });
   });
 });
 
