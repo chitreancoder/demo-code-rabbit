@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import ThemeToggle from './ThemeToggle';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
 
 const Login = ({ onLogin, onSwitchToRegister, theme, toggleTheme }) => {
   const [formData, setFormData] = useState({
@@ -49,97 +55,88 @@ const Login = ({ onLogin, onSwitchToRegister, theme, toggleTheme }) => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center p-6">
-      {/* Login Card */}
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-8">
-          {/* Header */}
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h1 className="text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-                Welcome Back
-              </h1>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Sign in to continue
-              </p>
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-4xl font-bold mb-2">
+                  Welcome Back
+                </h1>
+                <p className="text-muted-foreground">
+                  Sign in to continue
+                </p>
+              </div>
+              <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
             </div>
-            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-          </div>
+          </CardHeader>
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
-              <p className="text-red-700 dark:text-red-400 text-sm font-medium">{error}</p>
-            </div>
-          )}
+          <CardContent className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="username" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                placeholder="Enter your username"
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your username"
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your password"
+                  disabled={loading}
+                />
+              </div>
+
+              <Button
+                type="submit"
                 disabled={loading}
-                className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-            </div>
+                className="w-full"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : 'Sign In'}
+              </Button>
+            </form>
+          </CardContent>
 
-            <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                placeholder="Enter your password"
-                disabled={loading}
-                className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 px-6 rounded-lg font-semibold text-white bg-todoist-500 hover:bg-todoist-600 focus:ring-2 focus:ring-todoist-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Logging in...
-                </span>
-              ) : 'Sign In'}
-            </button>
-          </form>
-
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-700">
-            <p className="text-center text-neutral-600 dark:text-neutral-400">
+          <CardFooter className="flex-col">
+            <p className="text-center text-muted-foreground">
               Don't have an account?{' '}
-              <button
+              <Button
+                variant="link"
                 onClick={onSwitchToRegister}
                 disabled={loading}
-                className="font-semibold text-todoist-500 hover:text-todoist-600 transition-colors disabled:opacity-50"
+                className="p-0 h-auto"
               >
                 Create one
-              </button>
+              </Button>
             </p>
-          </div>
-        </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

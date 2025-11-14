@@ -5,6 +5,11 @@ import Register from './components/Register';
 import CommentList from './components/CommentList';
 import ThemeToggle from './components/ThemeToggle';
 import authService from './services/auth.service';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Plus, RefreshCw, LogOut, X, Loader2 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8080/api/notes';
 
@@ -238,38 +243,34 @@ function App() {
                   Welcome, <span className="text-todoist-500 font-semibold">{user?.username}</span>
                 </span>
                 <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-                <button
+                <Button
                   onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg font-semibold text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-200"
+                  variant="secondary"
                 >
+                  <LogOut className="mr-2 h-4 w-4" />
                   Logout
-                </button>
+                </Button>
               </div>
             </div>
           </div>
 
           {/* Actions Bar */}
           <div className="flex gap-4 justify-center mb-8 flex-wrap">
-            <button
+            <Button
               onClick={() => setShowCreateModal(true)}
               disabled={loading}
-              className="px-6 py-3 rounded-lg font-semibold text-white bg-todoist-500 hover:bg-todoist-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <Plus className="mr-2 h-4 w-4" />
               Create Note
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={loadNotes}
               disabled={loading}
-              className="px-6 py-3 rounded-lg font-semibold text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm border border-neutral-200 dark:border-neutral-600 flex items-center gap-2"
+              variant="outline"
             >
-              <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+              <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
-            </button>
+            </Button>
           </div>
 
           {loading && (
@@ -316,27 +317,33 @@ function App() {
                     )}
                   </div>
                   <div className="flex gap-2 pt-4 border-t border-neutral-200 dark:border-neutral-700 flex-wrap">
-                    <button
+                    <Button
                       onClick={() => setViewingNote(note)}
                       disabled={loading}
-                      className="flex-1 min-w-[80px] px-3 py-2 rounded-lg font-semibold text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 disabled:opacity-50 transition-colors duration-200"
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1 min-w-[80px]"
                     >
                       View
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => openEditModal(note)}
                       disabled={loading}
-                      className="flex-1 min-w-[80px] px-3 py-2 rounded-lg font-semibold text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 disabled:opacity-50 transition-colors duration-200"
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1 min-w-[80px]"
                     >
                       Edit
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleDelete(note._id)}
                       disabled={loading}
-                      className="flex-1 min-w-[80px] px-3 py-2 rounded-lg font-semibold text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 disabled:opacity-50 transition-colors duration-200"
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1 min-w-[80px]"
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))
@@ -351,46 +358,44 @@ function App() {
               <h2 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
                 Create New Note
               </h2>
-              <button onClick={closeModals} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                <svg className="w-6 h-6 text-neutral-600 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <Button onClick={closeModals} variant="ghost" size="icon">
+                <X className="h-4 w-4" />
+              </Button>
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-6">
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                  Title
-                </label>
-                <input
+                <Label>Title</Label>
+                <Input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
                   required
                   placeholder="Enter note title"
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                  Content
-                </label>
+                <Label>Content</Label>
                 <textarea
                   value={formData.body}
                   onChange={(e) => setFormData({...formData, body: e.target.value})}
                   required
                   placeholder="Enter note content"
                   rows="6"
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 resize-vertical"
+                  className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-vertical"
                 />
               </div>
               <div className="flex gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-                <button type="button" onClick={closeModals} className="flex-1 px-6 py-3 rounded-lg font-semibold text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-200">
+                <Button type="button" onClick={closeModals} variant="secondary" className="flex-1">
                   Cancel
-                </button>
-                <button type="submit" disabled={loading} className="flex-1 px-6 py-3 rounded-lg font-semibold text-white bg-todoist-500 hover:bg-todoist-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm">
-                  {loading ? 'Creating...' : 'Create Note'}
-                </button>
+                </Button>
+                <Button type="submit" disabled={loading} className="flex-1">
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : 'Create Note'}
+                </Button>
               </div>
             </form>
           </div>
@@ -404,46 +409,44 @@ function App() {
               <h2 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
                 Edit Note
               </h2>
-              <button onClick={closeModals} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                <svg className="w-6 h-6 text-neutral-600 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <Button onClick={closeModals} variant="ghost" size="icon">
+                <X className="h-4 w-4" />
+              </Button>
             </div>
             <form onSubmit={handleUpdate} className="p-6 space-y-6">
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                  Title
-                </label>
-                <input
+                <Label>Title</Label>
+                <Input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
                   required
                   placeholder="Enter note title"
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                  Content
-                </label>
+                <Label>Content</Label>
                 <textarea
                   value={formData.body}
                   onChange={(e) => setFormData({...formData, body: e.target.value})}
                   required
                   placeholder="Enter note content"
                   rows="6"
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 resize-vertical"
+                  className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-vertical"
                 />
               </div>
               <div className="flex gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-                <button type="button" onClick={closeModals} className="flex-1 px-6 py-3 rounded-lg font-semibold text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors duration-200">
+                <Button type="button" onClick={closeModals} variant="secondary" className="flex-1">
                   Cancel
-                </button>
-                <button type="submit" disabled={loading} className="flex-1 px-6 py-3 rounded-lg font-semibold text-white bg-todoist-500 hover:bg-todoist-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm">
-                  {loading ? 'Updating...' : 'Update Note'}
-                </button>
+                </Button>
+                <Button type="submit" disabled={loading} className="flex-1">
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : 'Update Note'}
+                </Button>
               </div>
             </form>
           </div>
@@ -457,11 +460,9 @@ function App() {
               <h2 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 break-words pr-4">
                 {viewingNote.title}
               </h2>
-              <button onClick={closeModals} className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors flex-shrink-0">
-                <svg className="w-6 h-6 text-neutral-600 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <Button onClick={closeModals} variant="ghost" size="icon" className="flex-shrink-0">
+                <X className="h-4 w-4" />
+              </Button>
             </div>
             <div className="p-6 space-y-6">
               <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-lg p-6 border border-neutral-200 dark:border-neutral-700">
