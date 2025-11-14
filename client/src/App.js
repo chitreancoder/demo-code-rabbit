@@ -331,7 +331,7 @@ function App() {
                       <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         <span>{formatDate(note.createdAt)}</span>
-                        {note.updatedAt && note.updatedAt !== note.createdAt && (
+                        {note.updatedAt && new Date(note.updatedAt).getTime() !== new Date(note.createdAt).getTime() && (
                           <span className="ml-1">(edited)</span>
                         )}
                       </div>
