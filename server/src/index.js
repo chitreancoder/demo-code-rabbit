@@ -1,5 +1,6 @@
 // server.js
-import bodyParser from 'body-parser';
+require('dotenv').config();
+const bodyParser = require('body-parser');
 import express from 'express';
 import router from './routes/index.js';
 import postRouter from './routes/post.routes.js';
@@ -9,7 +10,7 @@ import commentsRouter from './routes/comments.routes.js';
 import './config/mongodb.config.js';
 import cors from 'cors';
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 app.use(cors()); // Allow all origins
 app.use(
@@ -18,6 +19,11 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+
+// add health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({ message: 'Server is running' });
+});
 
 app.use('/api', router);
 app.use('/api/auth', authRouter);
