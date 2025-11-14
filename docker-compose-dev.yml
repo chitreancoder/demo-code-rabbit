@@ -37,7 +37,7 @@ services:
       dockerfile: Dockerfile
     image: myapp-client
     container_name: myapp-react-client
-    command: npm run start
+    command: npm run dev
     volumes:
       - ./client/:/usr/app
       - /usr/app/node_modules

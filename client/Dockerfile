@@ -1,7 +1,7 @@
 # Dockerfile for client
 
 # Stage 1: Build react client
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Working directory be app
 WORKDIR /usr/app
@@ -16,4 +16,4 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npm","start"]
+CMD ["npm","run","dev"]
