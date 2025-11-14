@@ -57,7 +57,7 @@ const Login = ({ onLogin, onSwitchToRegister, theme, toggleTheme }) => {
           <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-                Welcome Back
+                Welcome Back you
               </h1>
               <p className="text-neutral-600 dark:text-neutral-400">
                 Sign in to continue

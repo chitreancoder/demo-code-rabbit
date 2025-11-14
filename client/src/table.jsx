@@ -18,9 +18,9 @@ const Table = ({ data }) => {
             <td>{item.name}</td>
             <td>{item.age}</td>
             <td>{item.email}</td>
-          </tr>
-        ))}
+          </tr>   
+        ))}   
       </tbody>
     </table>
   );
-};
+};   
