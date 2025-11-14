@@ -9,9 +9,31 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Plus, RefreshCw, LogOut, X, Loader2 } from 'lucide-react';
+import { Plus, RefreshCw, LogOut, X, Loader2, Clock } from 'lucide-react';
 
 const API_BASE = 'http://localhost:8080/api/notes';
+
+// Helper function to format timestamps
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined 
+  });
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -305,6 +327,15 @@ function App() {
                     <h3 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 break-words">
                       {note.title}
                     </h3>
+                    {note.createdAt && (
+                      <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>{formatDate(note.createdAt)}</span>
+                        {note.updatedAt && note.updatedAt !== note.createdAt && (
+                          <span className="ml-1">(edited)</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="mb-4 flex-1">
                     <p className="text-neutral-700 dark:text-neutral-300 line-clamp-4 whitespace-pre-wrap break-words">
@@ -457,9 +488,20 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={closeModals}>
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-neutral-800 rounded-lg shadow-md border border-neutral-200 dark:border-neutral-700" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-6 border-b border-neutral-200 dark:border-neutral-700">
-              <h2 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 break-words pr-4">
-                {viewingNote.title}
-              </h2>
+              <div className="flex-1 pr-4">
+                <h2 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 break-words">
+                  {viewingNote.title}
+                </h2>
+                {viewingNote.createdAt && (
+                  <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>Created {formatDate(viewingNote.createdAt)}</span>
+                    {viewingNote.updatedAt && viewingNote.updatedAt !== viewingNote.createdAt && (
+                      <span>• Updated {formatDate(viewingNote.updatedAt)}</span>
+                    )}
+                  </div>
+                )}
+              </div>
               <Button onClick={closeModals} variant="ghost" size="icon" className="flex-shrink-0">
                 <X className="h-4 w-4" />
               </Button>

@@ -17,6 +17,8 @@ const noteSchema = new mongoose.Schema({
        ref: 'User',
        required: true
    }
+}, {
+   timestamps: true
 });
 
 // Cascade delete comments when a note is deleted
