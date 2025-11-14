@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './Auth.css';
+import ThemeToggle from './ThemeToggle';
 
-const Register = ({ onRegister, onSwitchToLogin }) => {
+const Register = ({ onRegister, onSwitchToLogin, theme, toggleTheme }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -74,88 +74,129 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Create Account</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="username">Username *</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              placeholder="Choose a username (min 3 characters)"
-              disabled={loading}
-            />
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center p-6">
+      {/* Register Card */}
+      <div className="w-full max-w-md">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-8">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h1 className="text-4xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                Join Us
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Create your account
+              </p>
+            </div>
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email">Email (optional)</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              disabled={loading}
-            />
-          </div>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
+              <p className="text-red-700 dark:text-red-400 text-sm font-medium">{error}</p>
+            </div>
+          )}
 
-          <div className="form-group">
-            <label htmlFor="password">Password *</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              placeholder="Choose a password (min 6 characters)"
-              disabled={loading}
-            />
-          </div>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label htmlFor="username" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                Username <span className="text-todoist-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                placeholder="Choose a username (min 3 characters)"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password *</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              placeholder="Re-enter your password"
-              disabled={loading}
-            />
-          </div>
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                Email <span className="text-neutral-400 text-xs">(optional)</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary btn-block"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Register'}
-          </button>
-        </form>
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                Password <span className="text-todoist-500">*</span>
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                placeholder="Choose a password (min 6 characters)"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
 
-        <div className="auth-footer">
-          <p>
-            Already have an account?{' '}
-            <button 
-              className="link-button" 
-              onClick={onSwitchToLogin}
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                Confirm Password <span className="text-todoist-500">*</span>
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                placeholder="Re-enter your password"
+                disabled={loading}
+                className="w-full px-4 py-3 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-white placeholder-neutral-400 focus:border-todoist-500 focus:ring-2 focus:ring-todoist-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
+
+            <button
+              type="submit"
               disabled={loading}
+              className="w-full py-3.5 px-6 rounded-lg font-semibold text-white bg-todoist-500 hover:bg-todoist-600 focus:ring-2 focus:ring-todoist-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
             >
-              Login here
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Account...
+                </span>
+              ) : 'Create Account'}
             </button>
-          </p>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-neutral-200 dark:border-neutral-700">
+            <p className="text-center text-neutral-600 dark:text-neutral-400">
+              Already have an account?{' '}
+              <button
+                onClick={onSwitchToLogin}
+                disabled={loading}
+                className="font-semibold text-todoist-500 hover:text-todoist-600 transition-colors disabled:opacity-50"
+              >
+                Sign in
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>

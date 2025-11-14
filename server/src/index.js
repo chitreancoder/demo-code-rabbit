@@ -9,7 +9,8 @@ import commentsRouter from './routes/comments.routes.js';
 import './config/mongodb.config.js';
 import cors from 'cors';
 const app = express();
-const PORT = 8080;
+import dotenv from 'dotenv';
+dotenv.config();
 
 app.use(cors()); // Allow all origins
 app.use(
@@ -28,8 +29,8 @@ app.get('/', function(req, res){
   res.send('Hello ! from the Server ');
 });
 
-app.listen(PORT, function () {
-    console.log(`Server Listening on ${PORT}`);
+app.listen(8080, function () {
+    console.log(`Server Listening on 8080`);
 });
 
 export default app;

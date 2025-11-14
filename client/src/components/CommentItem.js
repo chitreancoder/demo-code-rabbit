@@ -28,14 +28,18 @@ const CommentItem = ({ comment }) => {
   };
 
   return (
-    <div className="comment-item">
-      <div className="comment-header">
-        <span className="comment-author">{comment.author}</span>
-        <span className="comment-date">{formatDate(comment.createdAt)}</span>
+    <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-lg p-4 border-l-4 border-todoist-500 hover:shadow-sm transition-shadow duration-200">
+      <div className="flex justify-between items-start mb-2 flex-wrap gap-2">
+        <span className="font-semibold text-todoist-500">
+          {comment.author}
+        </span>
+        <span className="text-xs text-neutral-500 dark:text-neutral-400 font-mono">
+          {formatDate(comment.createdAt)}
+        </span>
       </div>
-      <div className="comment-content">
-        <p>{comment.content}</p>
-      </div>
+      <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed whitespace-pre-wrap break-words">
+        {comment.content}
+      </p>
     </div>
   );
 };
